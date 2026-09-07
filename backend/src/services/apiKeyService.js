@@ -377,16 +377,17 @@ export async function getAccessibleMountsByBasicPath(db, basicPath, subjectType,
   // 根据 basicPath + 存储公开性 + 存储 ACL 筛选可访问的挂载点
   const inaccessibleMounts = []; // 收集无法访问的挂载点信息
   const accessibleMounts = mountsWithStorageInfo.filter((mount) => {
-    // 首先检查存储配置是否“公开可用”
-    // 对于对象存储类挂载点，必须使用 is_public = 1 的配置
-    if (mount.storage_config_id && mount.is_public !== 1) {
-      inaccessibleMounts.push(mount.name);
-      return false;
-    }
-
-    // 然后检查是否命中主体的存储 ACL 白名单（如果有）
-    if (allowedConfigIdsSet && mount.storage_config_id && !allowedConfigIdsSet.has(mount.storage_config_id)) {
-      return false;
+    // 显式 ACL 优先于公开状态：ACL 允许 API Key 安全访问指定的私有存储。
+    // 没有配置 ACL 时保持原有回退行为，只允许访问公开存储。
+    if (mount.storage_config_id) {
+      if (allowedConfigIdsSet) {
+        if (!allowedConfigIdsSet.has(mount.storage_config_id)) {
+          return false;
+        }
+      } else if (mount.is_public !== 1) {
+        inaccessibleMounts.push(mount.name);
+        return false;
+      }
     }
 
     // 最后检查路径权限（basicPath 与挂载路径的父子关系）

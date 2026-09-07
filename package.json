@@ -1,0 +1,9 @@
+{
+  "name": "cloudpaste-cloudflare-deployment",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix frontend ci && npm --prefix frontend run build && npm --prefix backend ci --omit=optional",
+    "deploy": "npm --prefix backend run deploy:spa",
+    "test": "npm --prefix backend test"
+  }
+}

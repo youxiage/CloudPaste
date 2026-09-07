@@ -14,8 +14,6 @@ local_protocol = "http"
 
 # 环境变量
 [vars]
-# 用于加密敏感配置的密钥
-ENCRYPTION_SECRET = "default-encryption-key"
 # 管理员Token过期天数，默认7天
 ADMIN_TOKEN_EXPIRY_DAYS = "7"
 #
@@ -28,13 +26,13 @@ ADMIN_TOKEN_EXPIRY_DAYS = "7"
 [[d1_databases]]
 binding = "DB"
 database_name = "cloudpaste-db"
-database_id = "xxxxxxxxxxxxxxxxx"
+database_id = "e2985a49-cf88-4921-bd94-a4a59c7aa760"
 
 # Cloudflare Workflows 绑定
 # 用于异步任务作业的持久化执行 (支持多任务类型)
 [[workflows]]
 binding = "JOB_WORKFLOW"
-name = "job-workflow"
+name = "cloudpaste-job-workflow"
 class_name = "JobWorkflow"
 
 [triggers]
@@ -52,6 +50,10 @@ not_found_handling = "single-page-application"
 # 配置：明确指定这些路径优先进入 Worker 处理
 # 防止 API 请求被 SPA fallback 拦截
 run_worker_first = ["/api/*", "/dav/*"]
+
+[[routes]]
+pattern = "drive.992698.xyz"
+custom_domain = true
 
 # ==================== 路由优先级说明 ====================
 # 1. /api/* 和 /dav/* -> 优先进入 Worker 处理（run_worker_first）
